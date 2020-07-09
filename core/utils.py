@@ -24,7 +24,6 @@ import torch.nn.functional as F
 import torchvision
 import torchvision.utils as vutils
 
-
 def save_json(json_file, filename):
     with open(filename, 'w') as f:
         json.dump(json_file, f, indent=4, sort_keys=False)
@@ -57,7 +56,6 @@ def denormalize(x):
 def save_image(x, ncol, filename):
     x = denormalize(x)
     vutils.save_image(x.cpu(), filename, nrow=ncol, padding=0)
-
 
 @torch.no_grad()
 def translate_and_reconstruct(nets, args, x_src, y_src, x_ref, y_ref, filename):
@@ -172,7 +170,7 @@ def interpolate(nets, args, x_src, s_prev, s_next):
     frames = torch.cat(frames)
     return frames
 
-
+###
 def slide(entries, margin=32):
     """Returns a sliding reference window.
     Args:
@@ -195,7 +193,7 @@ def slide(entries, margin=32):
         canvas[t, :, top:bottom, :W] = merged[:, :, m_top:m_bottom, :]
     return canvas
 
-
+###
 @torch.no_grad()
 def video_ref(nets, args, x_src, x_ref, y_ref, fname):
     video = []
@@ -223,7 +221,7 @@ def video_ref(nets, args, x_src, x_ref, y_ref, fname):
     video = tensor2ndarray255(torch.cat(video))
     save_video(fname, video)
 
-
+###
 @torch.no_grad()
 def video_latent(nets, args, x_src, y_list, z_list, psi, fname):
     latent_dim = z_list[0].size(1)
@@ -258,7 +256,7 @@ def video_latent(nets, args, x_src, y_list, z_list, psi, fname):
     video = tensor2ndarray255(torch.cat(video))
     save_video(fname, video)
 
-
+### 
 def save_video(fname, images, output_fps=30, vcodec='libx264', filters=''):
     assert isinstance(images, np.ndarray), "images should be np.array: NHWC"
     num_frames, height, width, channels = images.shape
@@ -272,7 +270,6 @@ def save_video(fname, images, output_fps=30, vcodec='libx264', filters=''):
         process.stdin.write(frame.astype(np.uint8).tobytes())
     process.stdin.close()
     process.wait()
-
 
 def tensor2ndarray255(images):
     images = torch.clamp(images * 0.5 + 0.5, 0, 1)

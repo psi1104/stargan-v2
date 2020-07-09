@@ -102,3 +102,10 @@ venv.bak/
 
 # mypy
 .mypy_cache/
+
+# image data repo
+data
+img_data
+
+# pre-trained model repo
+expr
