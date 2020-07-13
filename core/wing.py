@@ -424,7 +424,6 @@ def align_faces(args: object, input_dir: object, output_dir: object) -> object:
         image = Image.open(os.path.join(input_dir, fname)).convert('RGB')
         x = transform(image).unsqueeze(0)
         x_aligned = aligner.align(x)
-        print('wing.py_428')
         save_image(x_aligned, 1, filename=os.path.join(output_dir, fname))
         print('Saved the aligned image to %s...' % fname)
 

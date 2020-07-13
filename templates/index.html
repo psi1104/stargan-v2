@@ -23,8 +23,13 @@
                 <hr class="solid">
                 
                 <h2>Upload </h2>
+                <div id = "select model">
+                    <label for="check_model"> Choose Face Type : </label>
+                    <label><input type="radio" name="check_model" value="celeba_hq" /> Human Face</label>
+                    <label><input type="radio" name="check_model" value="afhq" /> Animal Face</label>
+                </div>
                 <div id = 'inputImage'>
-                    <label for="source"> input image : </label>
+                    <label for="source"> Input image : </label>
                     <input type = 'file' id = 'source' style="margin-right: 10px; margin-bottom: 10px;">
                     <button id = "submit" type='submit' class="btn btn-primary btn-lg" style="margin-left: auto;"> Run </button>
                 </div>
@@ -35,13 +40,15 @@
                 </div>
                 <script>
                     document.getElementById("submit").onclick = () => {
-                        var formData = new FormData();
-                        var source = document.getElementById('source').files[0]
+                        const formData = new FormData();
+                        const check_model = document.querySelector('input[name=check_model]:checked').value
+                        const source = document.getElementById('source').files[0]
                         
                         formData.append('source', source)
+                        formData.append('check_model', check_model)
         
                         fetch(
-                            '/CelebA_HQ',
+                            '/stargan_v2',
                             {
                                 method: 'POST',
                                 body: formData,
@@ -51,6 +58,7 @@
                             if ( response.status == 200){
                                 return response 
                             }
+
                             else{
                                 throw Error("transfer error")
                                 

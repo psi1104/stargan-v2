@@ -1,0 +1,53 @@
+openapi: 3.0.1
+
+info:
+  title: ainize-stargan-v2-swagger
+  description: |
+    A good image-to-image translation model should learn a mapping between different visual domains
+    ---
+
+      How to use:
+      * Select a Face Type
+      * Select a Face Image
+      * Execute and wait little time
+  version: 0.1
+  license:
+    name: "Attribution-NonCommercial 4.0 International"
+
+servers:
+  - url: https://ainize-color-transfer-woomurf.endpoint.ainize.ai/
+
+paths:
+  /stargan_v2:
+    post:
+      requestBody:
+        required: true
+        description: "image-to-image translation model should learn a mapping between different visual domains"
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                check_model:
+                  type: string
+                  format: binary
+                source:
+                  type: string
+                  format: binary
+            encoding:
+              files:
+                contentType: image/*
+
+      responses:
+        '200':
+          descrition: success
+          content:
+            images/*:
+              schema:
+                type: string
+                format: binary
+        '400':
+          description: Bad Request
+
+        '500':
+          description: Server side error
