@@ -10,12 +10,15 @@ info:
       * Select a Face Type
       * Select a Face Image
       * Execute and wait little time
-  version: 0.1
+  contact:
+    name: Ainizer - Sangil Park
+  version: "0.1"
   license:
     name: "Attribution-NonCommercial 4.0 International"
+    url: https://github.com/psi1104/stargan-v2
 
 servers:
-  - url: https://ainize-color-transfer-woomurf.endpoint.ainize.ai/
+  - url: https://stargan-v2-psi1104.endpoint.ainize.ai/
 
 paths:
   /stargan_v2:
@@ -30,7 +33,7 @@ paths:
               properties:
                 check_model:
                   type: string
-                  format: binary
+                  enum: [Human Face, Animal Face]
                 source:
                   type: string
                   format: binary
@@ -40,7 +43,7 @@ paths:
 
       responses:
         '200':
-          descrition: success
+          description: success
           content:
             images/*:
               schema:

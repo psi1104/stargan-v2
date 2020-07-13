@@ -29,7 +29,7 @@ def create_args(f_id, model_type):
     args.src_dir = os.path.join(TARGET_FOLDER, f_id)
     args.result_dir = os.path.join(RESULT_FOLDER, f_id)
 
-    if model_type == 'celeba_hq':
+    if model_type == 'Human Face':
         args.num_domains = 2
         args.w_hpf = 1
         args.checkpoint_dir = 'expr/checkpoints/celeba_hq'
