@@ -47,7 +47,7 @@ def remove_image(args):
     shutil.rmtree(args.src_dir)
     shutil.rmtree(args.result_dir)
 
-app = Flask(__name__, template_folder="./templates/")
+app = Flask(__name__, template_folder="./static/")
 
 @app.route('/stargan_v2', methods=['POST'])
 def stargan_v2():

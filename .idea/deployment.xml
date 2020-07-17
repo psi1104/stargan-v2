@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
-  <component name="PublishConfigData" serverName="nipa" showNewOnTargetInSync="false">
+  <component name="PublishConfigData" serverName="nipa_local" showNewOnTargetInSync="false">
     <serverData>
       <paths name="comcom2">
         <serverdata>
@@ -11,6 +11,13 @@
         </serverdata>
       </paths>
       <paths name="nipa">
+        <serverdata>
+          <mappings>
+            <mapping deploy="/stargan-v2" local="$PROJECT_DIR$" web="/" />
+          </mappings>
+        </serverdata>
+      </paths>
+      <paths name="nipa_local">
         <serverdata>
           <mappings>
             <mapping deploy="/" local="$PROJECT_DIR$" web="/" />

@@ -9,14 +9,15 @@
         <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css"
             integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
 
-        <title>Stargan-v2</title>    
+        <title>StarGan-v2</title>
     </head>
     <body>
         <div class = "container">
             <div class="jumbotron mt-3">
                 
-                <h1>Stargan-v2</h1>
-                <A>Git Hub repository : </A> <A href="https://github.com/psi1104/stargan-v2"> Stargan-v2</A>
+                <h1>StarGan-v2</h1>
+                <h3>It changes the face of a person or animal into various facial styles. Try it!</h3>
+                <A>Git Hub repository : </A> <A href="https://github.com/psi1104/stargan-v2"> StarGan-v2</A>
                 <br>
                 <A>Testing API : </A> <A href="https://stargan-v2-psi1104.endpoint.ainize.ai"> on Ainize </A>
 
@@ -26,6 +27,7 @@
                 <div id="usage">
                     <p>1. Please name the image file in English or in numbers.</p>
                     <p>2. Please let the target face go into the whole picture.</p>
+                    <p> Tip.StarGan-v2 requires a clear photo of your face such as an ID card for better results</p>
                     <p>3. Please select the face type you want.</p>
                     <p>4. Please upload the image file you want to convert.</p>
                     <p>5. Please press the Run button and wait for about 10 seconds.</p>
@@ -44,8 +46,10 @@
                 
                 <div id ='resultBox' style="margin-left: auto; margin-right: auto;">
                     <p id='errorbox'></p>
-                    <img id='resultImage' src="" alt="">
+                    <img id='resultImage' src="{{url_for('static', filename="sample.jpeg")}}" style="width: auto; height:auto;">
                 </div>
+
+
                 <script>
                     document.getElementById("submit").onclick = () => {
                         const formData = new FormData();

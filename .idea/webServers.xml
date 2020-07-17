@@ -2,7 +2,7 @@
 <project version="4">
   <component name="WebServers">
     <option name="servers">
-      <webServer id="22670c44-b8e3-4acb-b9d4-662ae28e8559" name="nipa">
+      <webServer id="22670c44-b8e3-4acb-b9d4-662ae28e8559" name="nipa_local">
         <fileTransfer rootFolder="/home/sangil/stargan-v2" accessType="SFTP" host="localhost" port="6000" sshConfigId="9d6feb34-6224-49b0-b805-41281ebb0e98" sshConfig="sangil@localhost:6000 password">
           <advancedOptions>
             <advancedOptions dataProtectionLevel="Private" passiveMode="true" shareSSLContext="true" />
@@ -11,6 +11,13 @@
       </webServer>
       <webServer id="974ef360-5325-4370-bd03-7ff06fff8670" name="comcom2">
         <fileTransfer rootFolder="/home/sangil" accessType="SFTP" host="localhost" port="6000" sshConfigId="9d6feb34-6224-49b0-b805-41281ebb0e98" sshConfig="sangil@localhost:6000 password">
+          <advancedOptions>
+            <advancedOptions dataProtectionLevel="Private" passiveMode="true" shareSSLContext="true" />
+          </advancedOptions>
+        </fileTransfer>
+      </webServer>
+      <webServer id="25e72a43-0aef-47c1-aad7-88c70b6c7d8d" name="nipa">
+        <fileTransfer rootFolder="/home/sangil" accessType="SFTP" host="14.49.44.200" port="16022" sshConfigId="7a04f0dd-a4ae-42fc-aadb-7e2fb29c577d" sshConfig="sangil@14.49.44.200:16022 password">
           <advancedOptions>
             <advancedOptions dataProtectionLevel="Private" passiveMode="true" shareSSLContext="true" />
           </advancedOptions>
