@@ -21,7 +21,7 @@ servers:
   - url: https://stargan-v2-psi1104.endpoint.ainize.ai/
 
 paths:
-  /stargan_v2:
+  /predict:
     post:
       requestBody:
         required: true

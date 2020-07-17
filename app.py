@@ -49,8 +49,8 @@ def remove_image(args):
 
 app = Flask(__name__, template_folder="./static/")
 
-@app.route('/stargan_v2', methods=['POST'])
-def stargan_v2():
+@app.route('/predict', methods=['POST'])
+def predict():
     model_type = request.form['check_model']
     input_file = request.files['source']
     if not input_file:
