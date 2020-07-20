@@ -15,7 +15,7 @@ info:
   version: "0.1"
   license:
     name: "Attribution-NonCommercial 4.0 International"
-    url: https://github.com/psi1104/stargan-v2
+    url: https://github.com/psi1104/stargan-v2/blob/master/LICENSE
 
 servers:
   - url: https://stargan-v2-psi1104.endpoint.ainize.ai/

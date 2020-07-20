@@ -64,6 +64,9 @@ class Solver(nn.Module):
                 print('Initializing %s...' % name)
                 network.apply(utils.he_init)
 
+        ### modify def sample
+        self._load_checkpoint(args.resume_iter)
+
     def _save_checkpoint(self, step):
         for ckptio in self.ckptios:
             ckptio.save(step)
@@ -171,16 +174,17 @@ class Solver(nn.Module):
                 calculate_metrics(nets_ema, args, i+1, mode='reference')
 
     @torch.no_grad()
-    def sample(self, loaders):
+    def sample(self, loaders, result_dir):
         args = self.args
         nets_ema = self.nets_ema
-        os.makedirs(args.result_dir, exist_ok=True)
-        self._load_checkpoint(args.resume_iter)
+        # os.makedirs(args.result_dir, exist_ok=True)
+        os.makedirs(result_dir, exist_ok=True)
+        #self._load_checkpoint(args.resume_iter)
 
         src = next(InputFetcher(loaders.src, None, args.latent_dim, 'test'))
         ref = next(InputFetcher(loaders.ref, None, args.latent_dim, 'test'))
-
-        fname = ospj(args.result_dir, 'reference.jpg')
+        # fname = ospj(args.result_dir, 'reference.jpg')
+        fname = ospj(result_dir, 'reference.jpg')
         print('Working on {}...'.format(fname))
         utils.translate_using_reference(nets_ema, args, src.x, ref.x, ref.y, fname)
 

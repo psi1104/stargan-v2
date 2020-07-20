@@ -95,7 +95,6 @@ def translate_using_latent(nets, args, x_src, y_trg_list, z_trg_list, psi, filen
     x_concat = torch.cat(x_concat, dim=0)
     save_image(x_concat, N, filename)
 
-
 @torch.no_grad()
 def translate_using_reference(nets, args, x_src, x_ref, y_ref, filename):
     N, C, H, W = x_src.size()
