@@ -1,9 +1,14 @@
+import io
 import os
 import shutil
 import uuid
 import copy
 
-from flask import Flask, render_template, request, jsonify, send_from_directory
+import threading
+import time
+from queue import Empty, Queue
+
+from flask import Flask, render_template, request, jsonify, send_file
 from munch import Munch
 from werkzeug.utils import secure_filename
 
@@ -57,18 +62,16 @@ default_args = parse_args()
 CelebA_HQ = create_model(copy.copy(default_args), 'CelebA-HQ')
 AFHQ = create_model(copy.copy(default_args), 'AFHQ')
 
+requests_queue = Queue()
 #########################################################
 app = Flask(__name__, template_folder="./static/")
+app.config['MAX_CONTENT_LENGTH'] = 1 * 1024 * 1024
 
-@app.route('/predict', methods=['POST'])
-def predict():
-    model_type = request.form['check_model']
-    input_file = request.files['source']
-    if not input_file:
-        return jsonify({'message': 'nofile'}), 400
-    if input_file.content_type not in ['image/jpeg', 'image/jpg', 'image/png']:
-        return jsonify({'message': 'only support jpeg, jpg or png'}), 400
+BATCH_SIZE=1
+CHECK_INTERVAL=0.1
 
+#run model
+def run(input_file, model_type):
     f_id = str(uuid.uuid4())
     fname = secure_filename(input_file.filename)
 
@@ -106,13 +109,67 @@ def predict():
     #generate image
     solver.sample(loaders, args.result_dir)
 
-    result = send_from_directory(directory=args.result_dir, filename='reference.jpg')
+    #read image
+    path = os.path.join(args.result_dir, 'reference.jpg')
+    with open(path, 'rb') as f:
+        data = f.read()
+    result = io.BytesIO(data)
 
     #remove image data
     remove_image(args)
 
     return result
 
+def handle_requests_by_batch():
+    try:
+        while True:
+            requests_batch = []
+            while not (
+              len(requests_batch) >= BATCH_SIZE # or
+              #(len(requests_batch) > 0 #and time.time() - requests_batch[0]['time'] > BATCH_TIMEOUT)
+            ):
+              try:
+                requests_batch.append(requests_queue.get(timeout=CHECK_INTERVAL))
+              except Empty:
+                continue
+            batch_outputs = []
+
+            for request in requests_batch:
+                batch_outputs.append(run(request['input'][0], request['input'][1]))
+            for request, output in zip(requests_batch, batch_outputs):
+              request['output'] = output
+    except Exception as e:
+        while not requests_queue.empty():
+            requests_queue.get()
+        print(e)
+
+threading.Thread(target=handle_requests_by_batch).start()
+
+@app.route('/predict', methods=['POST'])
+def predict():
+    print(requests_queue.qsize())
+    if requests_queue.qsize() >= 1:
+        return jsonify({'message': 'Too Many Requests'}), 429
+
+    model_type = request.form['check_model']
+    input_file = request.files['source']
+    if not input_file:
+        return jsonify({'message': 'nofile'}), 400
+    if input_file.content_type not in ['image/jpeg', 'image/jpg', 'image/png']:
+        return jsonify({'message': 'only support jpeg, jpg or png'}), 400
+
+    req = {
+        'input': [input_file, model_type]
+    }
+
+    requests_queue.put(req)
+
+    while 'output' not in req:
+        time.sleep(CHECK_INTERVAL)
+
+    result = req['output']
+
+    return send_file(result, mimetype='image/jpeg')
 
 @app.route('/health')
 def health():
@@ -123,4 +180,4 @@ def main():
     return render_template('index.html')
 
 if __name__ == "__main__":
-    app.run(debug=False, port=80, host='0.0.0.0', threaded=False)
+    app.run(debug=False, port=80, host='0.0.0.0')

@@ -41,6 +41,7 @@
                 <div id = 'inputImage'>
                     <label for="source"> Input image : </label>
                     <input type = 'file' id = 'source' style="margin-right: 10px; margin-bottom: 10px;">
+                    <p>* Please upload an image file that is less than 1MB.</p>
                     <button id = "submit" type='submit' class="btn btn-primary btn-lg" style="margin-left: auto;"> Run </button>
                 </div>
                 
@@ -71,9 +72,8 @@
                                 return response 
                             }
                             else if( response.status == 413){
-                                return Error("Please upload an image file that is less than 2MB.")
+                                throw Error("This image file is larger than 1MB.")
                             }
-
                             else{
                                 throw Error("transfer error")
                                 
