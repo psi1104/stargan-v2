@@ -109,3 +109,6 @@ img_data
 
 # pre-trained model repo
 expr
+
+#.vscode
+.vscode
