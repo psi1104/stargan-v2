@@ -75,7 +75,7 @@
                                 throw Error("This image file is larger than 1MB.")
                             }
                             else{
-                                throw Error("transfer error")
+                                throw Error(response.statusText)
                                 
                             }
                         })

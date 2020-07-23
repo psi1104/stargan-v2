@@ -60,14 +60,12 @@ def remove_image(args):
 def detect_face(im):
     sys.stderr.write("Detecting face using MTCNN face detector")
     try:
-        print(1)
-        print(face_detector)
         bboxes, prob = face_detector.detect(im)
-        print(2)
         w0, h0, w1, h1 = bboxes[0]
-    except:
+    except Exception as e:
+        print(e)
         sys.stderr.write("Could not detect faces in the image")
-        return None
+        return False
 
     hc, wc = (h0 + h1) / 2, (w0 + w1) / 2
     crop = int(((h1 - h0) + (w1 - w0)) / 2 / 2 * 1.1)
@@ -103,51 +101,23 @@ def run(input_file, model_type):
     f_id = str(uuid.uuid4())
     fname = secure_filename(input_file.filename)
 
+    # save image to upload folder
+    os.makedirs(os.path.join(UPLOAD_FOLDER, f_id), exist_ok=True)
+
+    #human face crop
     pil_im = Image.open(input_file.stream).convert('RGB')
     im = np.uint8(pil_im)
-    print(im.shape)
-    print('im1 :', im)
     face_im = detect_face(copy.copy(im))
-    print('face_im', face_im)
 
-    #save image to upload folder
-    os.makedirs(os.path.join(UPLOAD_FOLDER, f_id), exist_ok=True)
-    input_file.save(os.path.join(UPLOAD_FOLDER, f_id, fname))
+    #if can not detect face
+    if type(face_im) == bool:
+        return 0
 
-    # print(3)
-    # Image.fromarray(face_im).save(os.path.join(UPLOAD_FOLDER, f_id, fname))
+    Image.fromarray(face_im).save(os.path.join(UPLOAD_FOLDER, f_id, fname))
 
     #update args
     args = update_args(default_args, f_id)
     torch.manual_seed(args.seed)
-    print(4)
-
-    ###
-    pil_im = Image.open(os.path.join(args.inp_dir, fname)).convert('RGB')
-    print('pil_im2 : ', pil_im)
-    # pil_im.load()
-    # print(type(pil_im))
-    # im = transforms.ToTensor()(np.asarray(pil_im, dtype="uint8"))
-    im = np.uint8(pil_im)
-    print('im2 :', im)
-    face_im = detect_face(copy.copy(im))
-    print(face_im)
-    Image.fromarray(face_im).save(os.path.join(UPLOAD_FOLDER, f_id, fname))
-    #
-    # pImg = Image.fromarray(im, mode='RGB')
-    #
-    # pImg.save(os.path.join(UPLOAD_FOLDER, f_id, fname))
-    ###
-
-    # img = cv2.imread(os.path.join(args.inp_dir, fname))
-    # print(type(img))
-    #
-    # img = np.uint8(img)
-    # print(type(img))
-    #
-    # img = detect_face(img)
-    # print(3)
-    # cv2.imwrite(os.path.join(args.inp_dir, fname), cv2.cvtColor(img, cv2.COLOR_RGB2BGR))
 
     #align image
     align_faces(args, args.inp_dir, args.out_dir)
@@ -238,6 +208,9 @@ def predict():
         time.sleep(CHECK_INTERVAL)
 
     result = req['output']
+
+    if result == 0:
+        return jsonify({'message': 'Could not detect faces in the image'}), 400
 
     return send_file(result, mimetype='image/jpeg')
 
