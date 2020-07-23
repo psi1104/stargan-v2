@@ -1,5 +1,6 @@
 import io
 import os
+import sys
 import shutil
 import uuid
 import copy
@@ -14,6 +15,10 @@ from werkzeug.utils import secure_filename
 
 from torch.backends import cudnn
 import torch
+from facenet_pytorch import MTCNN
+from PIL import Image
+import numpy as np
+
 from core.data_loader import get_test_loader
 from core.solver import Solver
 from core.wing import align_faces
@@ -51,6 +56,27 @@ def remove_image(args):
     shutil.rmtree(args.src_dir)
     shutil.rmtree(args.result_dir)
 
+#detect face in image
+def detect_face(im):
+    sys.stderr.write("Detecting face using MTCNN face detector")
+    try:
+        print(1)
+        print(face_detector)
+        bboxes, prob = face_detector.detect(im)
+        print(2)
+        w0, h0, w1, h1 = bboxes[0]
+    except:
+        sys.stderr.write("Could not detect faces in the image")
+        return None
+
+    hc, wc = (h0 + h1) / 2, (w0 + w1) / 2
+    crop = int(((h1 - h0) + (w1 - w0)) / 2 / 2 * 1.1)
+    im = np.pad(im, ((crop, crop), (crop, crop), (0, 0)), mode='edge')  # allow cropping outside by replicating borders
+    h0 = int(hc - crop + crop + crop * 0.15)
+    w0 = int(wc - crop + crop)
+
+    return im[h0:h0 + crop * 2, w0:w0 + crop * 2]
+
 #########################################################
 UPLOAD_FOLDER = 'img_data/upload'
 TARGET_FOLDER = 'img_data/target'
@@ -61,6 +87,8 @@ cudnn.benchmark = True
 default_args = parse_args()
 CelebA_HQ = create_model(copy.copy(default_args), 'CelebA-HQ')
 AFHQ = create_model(copy.copy(default_args), 'AFHQ')
+
+face_detector = MTCNN(select_largest=True, device=torch.device('cuda' if torch.cuda.is_available() else 'cpu'))
 
 requests_queue = Queue()
 #########################################################
@@ -75,13 +103,51 @@ def run(input_file, model_type):
     f_id = str(uuid.uuid4())
     fname = secure_filename(input_file.filename)
 
+    pil_im = Image.open(input_file.stream).convert('RGB')
+    im = np.uint8(pil_im)
+    print(im.shape)
+    print('im1 :', im)
+    face_im = detect_face(copy.copy(im))
+    print('face_im', face_im)
+
     #save image to upload folder
     os.makedirs(os.path.join(UPLOAD_FOLDER, f_id), exist_ok=True)
     input_file.save(os.path.join(UPLOAD_FOLDER, f_id, fname))
 
+    # print(3)
+    # Image.fromarray(face_im).save(os.path.join(UPLOAD_FOLDER, f_id, fname))
+
     #update args
     args = update_args(default_args, f_id)
     torch.manual_seed(args.seed)
+    print(4)
+
+    ###
+    pil_im = Image.open(os.path.join(args.inp_dir, fname)).convert('RGB')
+    print('pil_im2 : ', pil_im)
+    # pil_im.load()
+    # print(type(pil_im))
+    # im = transforms.ToTensor()(np.asarray(pil_im, dtype="uint8"))
+    im = np.uint8(pil_im)
+    print('im2 :', im)
+    face_im = detect_face(copy.copy(im))
+    print(face_im)
+    Image.fromarray(face_im).save(os.path.join(UPLOAD_FOLDER, f_id, fname))
+    #
+    # pImg = Image.fromarray(im, mode='RGB')
+    #
+    # pImg.save(os.path.join(UPLOAD_FOLDER, f_id, fname))
+    ###
+
+    # img = cv2.imread(os.path.join(args.inp_dir, fname))
+    # print(type(img))
+    #
+    # img = np.uint8(img)
+    # print(type(img))
+    #
+    # img = detect_face(img)
+    # print(3)
+    # cv2.imwrite(os.path.join(args.inp_dir, fname), cv2.cvtColor(img, cv2.COLOR_RGB2BGR))
 
     #align image
     align_faces(args, args.inp_dir, args.out_dir)
@@ -124,6 +190,7 @@ def handle_requests_by_batch():
     try:
         while True:
             requests_batch = []
+
             while not (
               len(requests_batch) >= BATCH_SIZE # or
               #(len(requests_batch) > 0 #and time.time() - requests_batch[0]['time'] > BATCH_TIMEOUT)
@@ -132,12 +199,15 @@ def handle_requests_by_batch():
                 requests_batch.append(requests_queue.get(timeout=CHECK_INTERVAL))
               except Empty:
                 continue
+
             batch_outputs = []
 
             for request in requests_batch:
                 batch_outputs.append(run(request['input'][0], request['input'][1]))
+
             for request, output in zip(requests_batch, batch_outputs):
-              request['output'] = output
+                request['output'] = output
+
     except Exception as e:
         while not requests_queue.empty():
             requests_queue.get()
