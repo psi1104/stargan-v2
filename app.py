@@ -66,14 +66,29 @@ def detect_face(im):
         print(e)
         sys.stderr.write("Could not detect faces in the image")
         return False
+    ###
+    w_crop = (w1 - w0) / 3
+    h_crop = (h1 - h0) / 3
+    if w0 - w_crop > 0:
+        w0 -= w_crop
+    else:
+        w0 = 0
+    if w1 + w_crop < im.shape[1]:
+        w1 += w_crop
+    else:
+        w1 = im.shape[1]
 
-    hc, wc = (h0 + h1) / 2, (w0 + w1) / 2
-    crop = int(((h1 - h0) + (w1 - w0)) / 2 / 2 * 1.1)
-    im = np.pad(im, ((crop, crop), (crop, crop), (0, 0)), mode='edge')  # allow cropping outside by replicating borders
-    h0 = int(hc - crop + crop + crop * 0.15)
-    w0 = int(wc - crop + crop)
+    if h0 - h_crop > 0:
+        h0 -= h_crop
+    else:
+        h0 = 0
+    if h1 + h_crop < im.shape[0]:
+        h1 += h_crop
+    else:
+        h1 = im.shape[0]
+    ###
 
-    return im[h0:h0 + crop * 2, w0:w0 + crop * 2]
+    return im[int(h0):int(h1), int(w0):int(w1)]
 
 #########################################################
 UPLOAD_FOLDER = 'img_data/upload'
@@ -104,31 +119,33 @@ def run(input_file, model_type):
     # save image to upload folder
     os.makedirs(os.path.join(UPLOAD_FOLDER, f_id), exist_ok=True)
 
-    #human face crop
-    pil_im = Image.open(input_file.stream).convert('RGB')
-    im = np.uint8(pil_im)
-    face_im = detect_face(copy.copy(im))
-
-    #if can not detect face
-    if type(face_im) == bool:
-        return 0
-
-    Image.fromarray(face_im).save(os.path.join(UPLOAD_FOLDER, f_id, fname))
-
     #update args
     args = update_args(default_args, f_id)
     torch.manual_seed(args.seed)
-
-    #align image
-    align_faces(args, args.inp_dir, args.out_dir)
 
     #allocate solver and update args.ref_dir
     if model_type == "Human Face":
         solver = CelebA_HQ
         args.ref_dir = 'assets/representative/celeba_hq/ref'
+
+        # human face crop
+        pil_im = Image.open(input_file.stream).convert('RGB')
+        im = np.uint8(pil_im)
+        face_im = detect_face(copy.copy(im))
+
+        # if can not detect face
+        if type(face_im) == bool:
+            return 'no face'
+
+        Image.fromarray(face_im).save(os.path.join(UPLOAD_FOLDER, f_id, fname))
     else:
         solver = AFHQ
         args.ref_dir = 'assets/representative/afhq/ref'
+
+        input_file.save(os.path.join(UPLOAD_FOLDER, f_id, fname))
+
+    # align image
+    align_faces(args, args.inp_dir, args.out_dir)
 
     #define loaders
     loaders = Munch(src=get_test_loader(root=args.src_dir,
@@ -209,7 +226,7 @@ def predict():
 
     result = req['output']
 
-    if result == 0:
+    if result == 'no face':
         return jsonify({'message': 'Could not detect faces in the image'}), 400
 
     return send_file(result, mimetype='image/jpeg')
