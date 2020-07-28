@@ -9,15 +9,17 @@
         <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css"
             integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
 
-        <title>StarGan-v2</title>
+        <title>StarGAN-v2</title>
     </head>
     <body>
         <div class = "container">
             <div class="jumbotron mt-3">
                 
-                <h1>StarGan-v2</h1>
+                <h1>StarGAN-v2</h1>
                 <h3>It changes the face of a person or animal into various facial styles. Try it!</h3>
-                <A>Git Hub repository : </A> <A href="https://github.com/psi1104/stargan-v2"> StarGan-v2</A>
+                <A>Origin Git Hub repository : </A> <A href="https://github.com/clovaai/stargan-v2"> Origin StarGAN-v2 repo</A>
+                <br>
+                <A>Git Hub repository : </A> <A href="https://github.com/psi1104/stargan-v2"> StarGAN-v2 repo</A>
                 <br>
                 <A>Testing API : </A> <A href="https://stargan-v2-psi1104.endpoint.ainize.ai"> on Ainize </A>
 
@@ -39,27 +41,42 @@
                     <label><input type="radio" name="check_model" value="Animal Face" /> Animal Face</label>
                 </div>
                 <div id = 'inputImage'>
-                    <label for="source"> Input image : </label>
+                    <label for="source"> Upload image : </label>
                     <input type = 'file' id = 'source' style="margin-right: 10px; margin-bottom: 10px;">
                     <p>* Please upload an image file that is less than 1MB.</p>
-                    <button id = "submit" type='submit' class="btn btn-primary btn-lg" style="margin-left: auto;"> Run </button>
+                    <button id = "submit" type='submit' onclick="this.disabled=true;" class="btn btn-primary btn-lg" style="margin-left: auto;"> Run </button>
                 </div>
                 
                 <div id ='resultBox' style="margin-left: auto; margin-right: auto;">
                     <p id='errorbox'></p>
-                    <img id='resultImage' src="{{url_for('static', filename="sample.jpeg")}}" style="width: auto; height:auto;">
+                    <img id='resultImage' src="{{url_for('static', filename='sample.jpeg')}}" style="max-width:100%; max-height:100%;">
                 </div>
 
 
                 <script>
                     document.getElementById("submit").onclick = () => {
+                        document.getElementById("submit").disabled = true;
+                        document.getElementById("errorbox").innerHTML = "";
                         const formData = new FormData();
+                        try{
+                            if (document.querySelector('input[name=check_model]:checked') == null){
+                                throw Error("Please Choose face type");
+                            }
+                            else if (document.getElementById('source').files[0] == undefined){
+                                throw Error("Please upload image file");
+                            }
+                        }catch (e) {
+                            document.getElementById("errorbox").innerHTML = e;
+                            document.getElementById("submit").disabled = false;
+                            return;
+                        }
+
                         const check_model = document.querySelector('input[name=check_model]:checked').value
                         const source = document.getElementById('source').files[0]
-                        
+
                         formData.append('source', source)
                         formData.append('check_model', check_model)
-        
+
                         fetch(
                             '/predict',
                             {
@@ -67,16 +84,15 @@
                                 body: formData,
                             }
                         )
-                        .then(response => {
+                        .then(async response => {
                             if ( response.status == 200){
-                                return response 
+                                return response
                             }
                             else if( response.status == 413){
                                 throw Error("This image file is larger than 1MB.")
                             }
                             else{
-                                throw Error(response.statusText)
-                                
+                                throw Error((await response.clone().json()).message)
                             }
                         })
                         .then(response => response.blob())
@@ -84,12 +100,13 @@
                         .then(imageURL => {
                             document.getElementById("resultImage").src = imageURL;
                             document.getElementById("errorbox").innerHTML = "";
+                            document.getElementById("submit").disabled = false;
                         })
                         .catch(e =>{
                             document.getElementById("errorbox").innerHTML = e;
+                            document.getElementById("submit").disabled = false;
                         })
                     }
-
                 </script>
             </div>
         </div>

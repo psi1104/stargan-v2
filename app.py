@@ -210,10 +210,9 @@ def predict():
 
     model_type = request.form['check_model']
     input_file = request.files['source']
-    if not input_file:
-        return jsonify({'message': 'nofile'}), 400
+
     if input_file.content_type not in ['image/jpeg', 'image/jpg', 'image/png']:
-        return jsonify({'message': 'only support jpeg, jpg or png'}), 400
+        return jsonify({'message': 'Only support jpeg, jpg or png'}), 400
 
     req = {
         'input': [input_file, model_type]
