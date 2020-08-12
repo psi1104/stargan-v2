@@ -239,4 +239,6 @@ def main():
     return render_template('index.html')
 
 if __name__ == "__main__":
-    app.run(debug=False, port=80, host='0.0.0.0')
+    from waitress import serve
+    serve(app, port=80, host='0.0.0.0')
+    # app.run(debug=False, port=80, host='0.0.0.0', thread=True)
