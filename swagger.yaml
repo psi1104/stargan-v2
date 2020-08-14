@@ -18,7 +18,7 @@ info:
     url: https://github.com/psi1104/stargan-v2/blob/master/LICENSE
 
 servers:
-  - url: https://stargan-v2-psi1104.endpoint.ainize.ai/
+  - url: https://master-stargan-v2-psi1104.endpoint.ainize.ai/
 
 paths:
   /predict:
