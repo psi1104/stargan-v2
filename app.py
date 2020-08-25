@@ -24,6 +24,12 @@ from core.solver import Solver
 from core.wing import align_faces
 from main import parse_args
 
+
+if torch.cuda.is_available():
+    pass
+else:
+    sys.exit('Cuda is not available')
+
 #preload model
 def create_model(args, model_type):
     args.resume_iter = 100000
@@ -101,7 +107,7 @@ default_args = parse_args()
 CelebA_HQ = create_model(copy.copy(default_args), 'CelebA-HQ')
 AFHQ = create_model(copy.copy(default_args), 'AFHQ')
 
-face_detector = MTCNN(select_largest=True, device=torch.device('cuda' if torch.cuda.is_available() else 'cpu'))
+face_detector = MTCNN(select_largest=True, device=torch.device('cuda'))
 
 requests_queue = Queue()
 #########################################################

@@ -29,7 +29,7 @@ class Solver(nn.Module):
     def __init__(self, args):
         super().__init__()
         self.args = args
-        self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+        self.device = torch.device('cuda')
 
         self.nets, self.nets_ema = build_model(args)
         # below setattrs are to make networks be children of Solver, e.g., for self.to(self.device)
