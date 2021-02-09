@@ -210,39 +210,44 @@ threading.Thread(target=handle_requests_by_batch).start()
 
 @app.route('/predict', methods=['POST'])
 def predict():
-    print(requests_queue.qsize())
-    if requests_queue.qsize() >= 1:
-        return jsonify({'message': 'Too Many Requests'}), 429
+    try :
+        if requests_queue.qsize() >= 1:
+            return jsonify({'message': 'Too Many Requests! Please retry request.'}), 429
 
-    model_type = request.form['check_model']
-    input_file = request.files['source']
+        model_type = request.form['check_model']
+        input_file = request.files['source']
 
-    if input_file.content_type not in ['image/jpeg', 'image/jpg', 'image/png']:
-        return jsonify({'message': 'Only support jpeg, jpg or png'}), 400
+        if input_file.content_type not in ['image/jpeg', 'image/jpg', 'image/png']:
+            return jsonify({'message': 'Only support jpeg, jpg or png'}), 400
 
-    req = {
-        'input': [input_file, model_type]
-    }
+        req = {
+            'input': [input_file, model_type]
+        }
 
-    requests_queue.put(req)
+        requests_queue.put(req)
 
-    while 'output' not in req:
-        time.sleep(CHECK_INTERVAL)
+        while 'output' not in req:
+            time.sleep(CHECK_INTERVAL)
 
-    result = req['output']
+        result = req['output']
 
-    if result == 'no face':
-        return jsonify({'message': 'Could not detect faces in the image'}), 400
+        if result == 'no face':
+            return jsonify({'message': 'Could not detect faces in the image'}), 400
 
-    return send_file(result, mimetype='image/jpeg')
+        return send_file(result, mimetype='image/jpeg')
+    except :
+        return jsonify({'message': 'Error occurred on server!'}), 500
+
 
 @app.route('/health')
 def health():
     return "ok"
 
+
 @app.route('/')
 def main(): 
     return render_template('index.html')
+
 
 if __name__ == "__main__":
     from waitress import serve

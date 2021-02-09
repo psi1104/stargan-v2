@@ -1,5 +1,5 @@
-FROM pytorch/pytorch:1.5.1-cuda10.1-cudnn7-runtime
-RUN pip install --upgrade pip
+FROM pytorch/pytorch:1.7.0-cuda11.0-cudnn8-runtime
+
 RUN apt-get update
 RUN apt install -y libsm6 libxext6 libxrender-dev libglib2.0-0 libgtk2.0-dev ffmpeg wget
 
