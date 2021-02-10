@@ -5,7 +5,7 @@ munch==2.5.0
 opencv-python==4.5.1.48
 scikit-image==0.18.1
 waitress==1.4.4
-tqdm=4.56.1
+tqdm==4.56.1
 -f https://download.pytorch.org/whl/torch_stable.html
 torch==1.7.1+cu101
 torchvision==0.8.2+cu101
