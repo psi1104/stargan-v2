@@ -1,4 +1,4 @@
-FROM nvidia/cuda:10.1-cudnn8-runtime
+FROM nvidia/cuda:10.2-cudnn8-runtime
 
 RUN chmod 777 /tmp
 RUN apt update
