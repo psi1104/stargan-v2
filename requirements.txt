@@ -6,7 +6,7 @@ opencv-python==4.5.1.48
 scikit-image==0.18.1
 waitress==1.4.4
 tqdm==4.56.1
--f https://download.pytorch.org/whl/torch_stable.html
-torch==1.7.1+cu101
-torchvision==0.8.2+cu101
-torchaudio==0.7.2 
+-f https://download.pytorch.org/whl/lts/1.8/torch_lts.html
+torch
+torchvision
+torchaudio
