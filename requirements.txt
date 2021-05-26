@@ -4,11 +4,9 @@ Flask==1.1.2
 munch==2.5.0
 numpy
 matplotlib
-scipy
-opencv-python==4.5.1.48
-scikit-image==0.17.2
+scipy==1.2.1
+opencv-python==4.1.2.30
+scikit-image==0.16.2
 waitress==1.4.4
-tqdm==4.56.1
-torch==1.8.0
-torchvision==0.9.0
-torchaudio==0.8.0
+tqdm==4.43.0
+pillow==7.0.0
